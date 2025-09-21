@@ -32,7 +32,7 @@ public class Endereco {
     private String cidade;
     private String uf;
 
-    @OneToOne(mappedBy = "pedido")
+    @OneToOne(mappedBy = "endereco")
     private Pedido pedido;
 
 }
