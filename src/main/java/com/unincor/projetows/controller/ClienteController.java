@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.unincor.projetows.model.domain.Cliente;
 import com.unincor.projetows.model.repository.ClienteRepository;
+import com.unincor.projetows.model.service.ClienteService;
 
 @RestController
 @RequestMapping("/clientes")
@@ -23,6 +24,9 @@ public class ClienteController {
 
     @Autowired
     private ClienteRepository clienteRepository;
+
+    @Autowired
+    private ClienteService clienteService;
 
     //List<Cliente> clientes = new ArrayList<>();
 
@@ -39,7 +43,7 @@ public class ClienteController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Cliente salvarCliente(@RequestBody Cliente cliente) {
-        var clienteSalvo = clienteRepository.save(cliente);
+        var clienteSalvo = clienteService.salvar(cliente);
         return clienteSalvo;
     }
 

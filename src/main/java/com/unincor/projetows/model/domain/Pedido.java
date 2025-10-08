@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -31,21 +32,26 @@ public class Pedido {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @NotNull
     private LocalDateTime dataPedido;
     @ManyToOne
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;
+    @NotNull
     private Double valorTotal;
+    @NotNull
     private Double valorDesconto;
+    @NotNull
     private Double valorProdutos;
     private Double valorFrete;
     @OneToOne
     @JoinColumn(name = "endereco_id")
     private Endereco endereco;
     private String observacaoDoCliente;
+    @NotNull
     private Boolean cancelado = false;
 
-    
+    @NotNull
     @OneToMany(mappedBy = "pedido")
     private List<ProdutoPedido> produtosPedidos = new ArrayList<>();
 

@@ -13,4 +13,5 @@ public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
     List<Cliente> findByNome(String nome);
     List<Cliente> findByNomeOrderByNome(String nome);
     List<Cliente> findByDataNascimentoBetween(LocalDate inicio, LocalDate fim);
+    boolean existsByCpf(String cpf);
 }
