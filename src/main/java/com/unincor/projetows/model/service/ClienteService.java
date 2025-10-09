@@ -17,13 +17,15 @@ public class ClienteService {
         if(cliente == null) {
             throw new ClienteException("O cliente informado não é válido!");
         }
-        if(clienteRepository.existsByCpf(cliente.getCpf())) {
+        var clienteBusca = clienteRepository.findFirstByCpf(cliente.getCpf());
+        if((cliente.getId() == null && clienteBusca.isPresent())
+                || (cliente.getId() != null && !cliente.equals(clienteBusca.get()))) {
             throw new ClienteException("O cliente com o CPF " + cliente.getCpf() + " já está cadastrado");
         }
 
         return clienteRepository.save(cliente);
     }
 
-    
+
 
 }

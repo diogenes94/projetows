@@ -26,7 +26,6 @@ import lombok.ToString;
 @Setter
 @ToString
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 @Entity
 @Table(name = "Clientes")
@@ -50,5 +49,23 @@ public class Cliente {
 
     @OneToMany(mappedBy = "cliente")
     private List<Pedido> pedidos = new ArrayList<>();
+
+    
+
+    public Cliente(Integer id, @NotBlank(message = "O nome não foi informado") @Size(min = 5, max = 100) String nome,
+            @CPF @NotBlank String cpf, @NotNull LocalDate dataNascimento,
+            @NotNull(message = "O endereço não foi informado") Endereco endereco) {
+        this.id = id;
+        this.nome = nome;
+        setCpf(cpf);
+        this.dataNascimento = dataNascimento;
+        this.endereco = endereco;
+    }
+
+
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf == null ? cpf : cpf.replaceAll("\\D", "");
+    }
     
 }
