@@ -6,12 +6,16 @@ import org.springframework.stereotype.Service;
 import com.unincor.projetows.exceptions.ClienteException;
 import com.unincor.projetows.model.domain.Cliente;
 import com.unincor.projetows.model.repository.ClienteRepository;
+import com.unincor.projetows.model.repository.EnderecoRepository;
 
 @Service
 public class ClienteService {
 
     @Autowired
     private ClienteRepository clienteRepository;
+
+    @Autowired
+    private EnderecoRepository enderecoRepository;
 
     public Cliente salvar(Cliente cliente) {
         if(cliente == null) {
@@ -21,6 +25,11 @@ public class ClienteService {
         if((cliente.getId() == null && clienteBusca.isPresent())
                 || (cliente.getId() != null && !cliente.equals(clienteBusca.get()))) {
             throw new ClienteException("O cliente com o CPF " + cliente.getCpf() + " já está cadastrado");
+        }
+
+        if(cliente.getEndereco() != null) {
+            var enderecoSalvo = enderecoRepository.save(cliente.getEndereco());
+            cliente.setEndereco(enderecoSalvo);
         }
 
         return clienteRepository.save(cliente);

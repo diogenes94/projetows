@@ -36,7 +36,7 @@
                             <td th:text="${c.nome}">Fulano</td>
                             <td th:text="${c.cpf}">000.000.000-00</td>
                             <td th:text="${c.dataNascimento}">2000-01-01</td>
-                            <td th:text="${c.endereco}">Rua X, 123</td>
+                            <td th:text="${c.endereco.getEnderecoLabel}">Rua X, 123</td>
                             <td>
                                 <a class="btn btn-sm btn-outline-primary me-1"
                                     th:href="@{|/clientes-site/${c.id}/editar|}">Editar</a>
