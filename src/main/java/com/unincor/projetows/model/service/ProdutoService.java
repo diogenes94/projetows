@@ -20,10 +20,12 @@ public class ProdutoService {
             throw new ProdutoException("Nenhum produto válido informado");
         }
 
-        Optional<Produto> produtoBusca = produtoRepository.findFirstByDescricao(produto.getDescricao());
+        Optional<Produto> produtoBusca = produtoRepository
+                .findFirstByDescricao(produto.getDescricao());
         if ((produto.getId() == null && produtoBusca.isPresent())
                 || (produto.getId() != null && !produto.equals(produtoBusca.get()))) {
-            throw new ProdutoException("O produto com a descrição '" + produto.getDescricao() + "' já existe!");
+            throw new ProdutoException("O produto com a descrição '" + produto.getDescricao()
+                    + "' já existe!");
         }
 
         return produtoRepository.save(produto);

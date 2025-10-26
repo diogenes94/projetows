@@ -34,6 +34,7 @@ public class Pedido {
     private Integer id;
     @NotNull
     private LocalDateTime dataPedido;
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;
@@ -54,6 +55,18 @@ public class Pedido {
     @NotNull
     @OneToMany(mappedBy = "pedido")
     private List<ProdutoPedido> produtosPedidos = new ArrayList<>();
+
+    public void totalizarPedido() {
+        this.valorProdutos = produtosPedidos.stream()
+                            .mapToDouble(prod -> prod.getValorProduto()).sum();
+        //totalizar valor desconto e valor produtos   
+        this.valorDesconto = produtosPedidos.stream()
+                            .mapToDouble(prod -> prod.getValorDesconto()).sum();
+        //valor total é o valor produtos menos o desconto.
+        //this.valorTotal = valorProdutos - valorDesconto;
+        this.valorTotal = produtosPedidos.stream()
+                        .mapToDouble(prod -> prod.getValorTotal()).sum();
+    }
 
     
 }

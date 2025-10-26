@@ -43,4 +43,12 @@ public class ProdutoPedido {
     private Double valorTotal;
     private String observacao;
 
+    public void calcularPreco() {
+        this.valorProduto = produto.getPreco();
+        this.valorTotal = valorProduto * quantidade;
+        if(this.valorDesconto != null) {
+            this.valorTotal -= this.valorDesconto;
+        }
+    }
+
 }

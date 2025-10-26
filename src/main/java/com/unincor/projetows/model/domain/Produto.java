@@ -42,4 +42,14 @@ public class Produto {
     @OneToMany(mappedBy = "produto")
     private List<ProdutoPedido> produtosPedidos = new ArrayList<>();
 
+
+    public static void main(String[] args) {
+        Produto p1 = new Produto(1, "Coca 2L", 
+        "Coca 2L", 10.0, null, null);
+
+        Produto p2 = new Produto(2, "Coca 2L", 
+        "Coca 2L", 10.0, null, null);
+        System.out.println("Produtos iguais: " + p1.equals(p2));
+    }
+
 }
