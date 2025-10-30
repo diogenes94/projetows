@@ -45,6 +45,8 @@ public class Pedido {
     @NotNull
     private Double valorProdutos;
     private Double valorFrete;
+
+    @NotNull
     @OneToOne
     @JoinColumn(name = "endereco_id")
     private Endereco endereco;
