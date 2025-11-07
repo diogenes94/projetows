@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="_layout :: head(${titulo})"></head>
+
+<div th:replace="_layout :: layout('Produtos', ~{::content})">
+    <div th:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="h3 m-0">Produtos</h1>
+            <a class="btn btn-primary" th:href="@{/produtos-site/novo}">+ Novo Produto</a>
+        </div>
+
+        <div th:if="${ok}" class="alert alert-success" th:text="${ok}"></div>
+
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Descrição</th>
+                            <th>Preço</th>
+                            <th>Imagem</th>
+                            <th style="width: 160px">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="p : ${produtos}">
+                            <td th:text="${p.id}">1</td>
+                            <td th:text="${p.nome}">Fulano</td>
+                            <td th:text="${p.descricao}"></td>
+                            <td th:text="${#numbers.formatDecimal(p.preco, 1, 'POINT', 2, 'COMMA')}">0,00</td>
+                            <td th:text="${p.nomeImg}">Minha Img</td>
+                            <td>
+                                <a class="btn btn-sm btn-outline-primary me-1"
+                                    th:href="@{|/produtos-site/${p.id}/editar|}">Editar</a>
+                                <form th:action="@{|/produtos-site/${p.id}/excluir|}" method="post" class="d-inline"
+                                    onsubmit="return confirm('Excluir este produto?')">
+                                    <button class="btn btn-sm btn-outline-danger" type="submit">Excluir</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(produtos)}">
+                            <td colspan="6" class="text-center text-muted py-4">Nenhum produto cadastrado.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>
