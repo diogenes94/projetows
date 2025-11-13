@@ -4,7 +4,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotBlank;
@@ -38,9 +37,6 @@ public class Endereco {
     private String cidade;
     @NotBlank
     private String uf;
-
-    @OneToOne(mappedBy = "endereco")
-    private Pedido pedido;
 
     /**
      * Retorna um endereço formatado: Rua fulano de tal, 85, Vila das Hortências,
