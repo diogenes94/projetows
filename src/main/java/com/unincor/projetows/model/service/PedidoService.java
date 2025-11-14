@@ -7,20 +7,13 @@ import org.springframework.stereotype.Service;
 
 import com.unincor.projetows.exceptions.PedidoException;
 import com.unincor.projetows.model.domain.Pedido;
-import com.unincor.projetows.model.domain.ProdutoPedido;
 import com.unincor.projetows.model.repository.PedidoRepository;
-import com.unincor.projetows.model.repository.ProdutoPedidoRepository;
-import com.unincor.projetows.model.repository.ProdutoRepository;
 
 @Service
 public class PedidoService {
 
     @Autowired
-    private PedidoRepository pedidoRepository;    
-    @Autowired
-    private ProdutoPedidoRepository produtoPedidoRepository;
-    @Autowired
-    private ProdutoRepository produtoRepository;
+    private PedidoRepository pedidoRepository;
 
     public Pedido salvarNovoPedido(Pedido pedido) {
         if(pedido.getId() != null) {
