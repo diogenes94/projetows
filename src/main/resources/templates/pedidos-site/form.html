@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="_layout :: head(${titulo})"></head>
+
+<div th:replace="_layout :: layout(${titulo}, ~{::content})">
+    <div th:fragment="content">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="h3 m-0" th:text="${titulo != null ? titulo : 'Pedido'}">Pedido</h1>
+            <a class="btn btn-primary" th:href="@{/pedidos-site}">Voltar</a>
+        </div>
+
+        <form id="formPedido"
+            th:action="${pedido.id} == null ? @{/pedidos-site/novo} : @{/pedidos-site/{id}/editar(id=${pedido.id})}"
+            th:object="${pedido}" method="post" class="card card-soft" novalidate>
+            <div class="card-body">
+
+                <input th:if="${_csrf != null}" type="hidden" th:name="${_csrf.parameterName}"
+                    th:value="${_csrf.token}" />
+
+                <div th:if="${erro}" class="alert alert-danger" th:text="${erro}"></div>
+                <div th:if="${ok}" class="alert alert-success" th:text="${ok}"></div>
+
+                <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger">
+                    <strong>Corrija os seguintes erros</strong>
+                    <ul class="mb-0">
+                        <li th:each="e : ${#fields.errors('*')}" th:text="${e}"></li>
+                    </ul>
+                </div>
+
+                <input type="hidden" th:field="*{id}" />
+
+                <!-- Cabeçalho -->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Cliente *</label>
+                        <select id="clienteId" class="form-select" th:field="*{cliente.id}"
+                            th:classappend="${(#fields.hasErrors('cliente') or #fields.hasErrors('cliente.id')) ? ' is-invalid' : ''}"
+                            required>
+                            <option value="">Selecione...</option>
+                            <option th:each="c : ${clientes}" th:value="${c.id}" th:text="${c.nome}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('cliente')}" th:errors="*{cliente}">
+                        </div>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('cliente.id')}"
+                            th:errors="*{cliente.id}"></div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Data do Pedido</label>
+                        <input class="form-control"
+                            th:value="${pedido.dataPedido != null ? #temporals.format(pedido.dataPedido,'dd/MM/yyyy HH:mm') : ''}"
+                            readonly />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Observação do Cliente</label>
+                        <input class="form-control" th:field="*{observacaoDoCliente}" />
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <!-- Endereço -->
+                <h5 class="mb-2">Endereço de Entrega</h5>
+
+                <div class="mb-2 d-flex gap-2">
+                    <button type="button" class="btn btn-outline-primary" id="btnUsarEnderecoCliente" disabled>
+                        Usar endereço do cliente
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="btnNovoEndereco">
+                        Cadastrar/editar endereço
+                    </button>
+                </div>
+
+                <input type="hidden" th:field="*{endereco.id}" id="enderecoId" />
+
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">CEP</label>
+                        <input class="form-control" th:field="*{endereco.cep}" id="enderecoCep"
+                            th:classappend="${#fields.hasErrors('endereco.cep') ? ' is-invalid' : ''}" />
+                        <div class="invalid-feedback" th:errors="*{endereco.cep}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Logradouro</label>
+                        <input class="form-control" th:field="*{endereco.logradouro}" id="enderecoLogradouro"
+                            th:classappend="${#fields.hasErrors('endereco.logradouro') ? ' is-invalid' : ''}" />
+                        <div class="invalid-feedback" th:errors="*{endereco.logradouro}"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Número</label>
+                        <input class="form-control" th:field="*{endereco.numero}" id="enderecoNumero"
+                            th:classappend="${#fields.hasErrors('endereco.numero') ? ' is-invalid' : ''}" />
+                        <div class="invalid-feedback" th:errors="*{endereco.numero}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Complemento</label>
+                        <input class="form-control" th:field="*{endereco.complemento}" id="enderecoComplemento"
+                            th:classappend="${#fields.hasErrors('endereco.complemento') ? ' is-invalid' : ''}" />
+                        <div class="invalid-feedback" th:errors="*{endereco.complemento}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Bairro</label>
+                        <input class="form-control" th:field="*{endereco.bairro}" id="enderecoBairro"
+                            th:classappend="${#fields.hasErrors('endereco.bairro') ? ' is-invalid' : ''}" />
+                        <div class="invalid-feedback" th:errors="*{endereco.bairro}"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Cidade</label>
+                        <input class="form-control" th:field="*{endereco.cidade}" id="enderecoCidade"
+                            th:classappend="${#fields.hasErrors('endereco.cidade') ? ' is-invalid' : ''}" />
+                        <div class="invalid-feedback" th:errors="*{endereco.cidade}"></div>
+                    </div>
+                    <div class="col-md-1">
+                        <label class="form-label">UF</label>
+                        <input maxlength="2" class="form-control" th:field="*{endereco.uf}" id="enderecoUf"
+                            th:classappend="${#fields.hasErrors('endereco.uf') ? ' is-invalid' : ''}" />
+                        <div class="invalid-feedback" th:errors="*{endereco.uf}"></div>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <!-- Itens -->
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="m-0">Itens do Pedido</h5>
+                    <button type="button" class="btn btn-sm btn-primary" id="btnAddItem">+ Adicionar item</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th style="width:40%">Produto</th>
+                                <th style="width:15%">Quantidade</th>
+                                <th style="width:15%">Valor Produto</th>
+                                <th style="width:15%">Desconto</th>
+                                <th style="width:15%" class="text-end">Valor Total</th>
+                                <th style="width:5%"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="itensTableBody">
+                            <tr th:each="it,iter : *{produtosPedidos}">
+                                <td>
+                                    <input type="hidden" th:field="*{produtosPedidos[__${iter.index}__].id}" />
+                                    <select class="form-select prod-select"
+                                        th:field="*{produtosPedidos[__${iter.index}__].produto.id}"
+                                        th:classappend="${(#fields.hasErrors('produtosPedidos[' + iter.index + '].produto') or #fields.hasErrors('produtosPedidos[' + iter.index + '].produto.id')) ? ' is-invalid' : ''}"
+                                        required>
+                                        <option value="">Selecione...</option>
+                                        <option th:each="p : ${produtos}" th:value="${p.id}"
+                                            th:attr="data-preco=${p.preco}"
+                                            th:text="${p.nome + ' (R$ ' + #numbers.formatDecimal(p.preco,1,'POINT',2,'COMMA') + ')'}">
+                                        </option>
+                                    </select>
+                                    <div class="invalid-feedback"
+                                        th:if="${#fields.hasErrors('produtosPedidos[' + iter.index + '].produto')}"
+                                        th:errors="*{produtosPedidos[__${iter.index}__].produto}"></div>
+                                    <div class="invalid-feedback"
+                                        th:if="${#fields.hasErrors('produtosPedidos[' + iter.index + '].produto.id')}"
+                                        th:errors="*{produtosPedidos[__${iter.index}__].produto.id}"></div>
+                                </td>
+                                <td>
+                                    <input type="number" min="1" step="1" class="form-control qtd-input"
+                                        th:field="*{produtosPedidos[__${iter.index}__].quantidade}"
+                                        th:classappend="${#fields.hasErrors('produtosPedidos[' + iter.index + '].quantidade') ? ' is-invalid' : ''}"
+                                        required />
+                                    <div class="invalid-feedback"
+                                        th:errors="*{produtosPedidos[__${iter.index}__].quantidade}"></div>
+                                </td>
+                                <td>
+                                    <input type="number" min="0" step="0.01" class="form-control preco-input"
+                                        th:field="*{produtosPedidos[__${iter.index}__].valorProduto}"
+                                        th:classappend="${#fields.hasErrors('produtosPedidos[' + iter.index + '].valorProduto') ? ' is-invalid' : ''}"
+                                        required />
+                                    <div class="invalid-feedback"
+                                        th:errors="*{produtosPedidos[__${iter.index}__].valorProduto}"></div>
+                                </td>
+                                <td>
+                                    <input type="number" min="0" step="0.01" class="form-control desc-input"
+                                        th:field="*{produtosPedidos[__${iter.index}__].valorDesconto}"
+                                        th:classappend="${#fields.hasErrors('produtosPedidos[' + iter.index + '].valorDesconto') ? ' is-invalid' : ''}" />
+                                    <div class="invalid-feedback"
+                                        th:errors="*{produtosPedidos[__${iter.index}__].valorDesconto}"></div>
+                                </td>
+                                <td class="text-end">
+                                    <input class="form-control text-end total-input" readonly
+                                        th:value="${#numbers.formatDecimal(it.valorTotal ?: 0,1,'POINT',2,'COMMA')}" />
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-outline-danger btnRemove">X</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Resumo -->
+                <hr class="my-4" />
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Valor Produtos</label>
+                        <input id="resValorProdutos" class="form-control" readonly
+                            th:value="${#numbers.formatDecimal(pedido.valorProdutos ?: 0,1,'POINT',2,'COMMA')}" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Valor Desconto</label>
+                        <input id="resValorDesconto" class="form-control" readonly
+                            th:value="${#numbers.formatDecimal(pedido.valorDesconto ?: 0,1,'POINT',2,'COMMA')}" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Valor Frete</label>
+                        <input id="resValorFrete" type="number" step="0.01" min="0" class="form-control"
+                            th:field="*{valorFrete}"
+                            th:classappend="${#fields.hasErrors('valorFrete') ? ' is-invalid' : ''}" />
+                        <div class="invalid-feedback" th:errors="*{valorFrete}"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Valor Total</label>
+                        <input id="resValorTotal" class="form-control" readonly
+                            th:value="${#numbers.formatDecimal(pedido.valorTotal ?: 0,1,'POINT',2,'COMMA')}" />
+                    </div>
+                </div>
+
+                <div class="text-end mt-4">
+                    <button id="btnSalvar" class="btn btn-primary" type="submit">Salvar Pedido</button>
+                </div>
+
+            </div>
+        </form>
+
+        <!-- Template item -->
+        <template id="tplItemRow">
+            <tr>
+                <td>
+                    <input type="hidden" name="produtosPedidos[IDX].id" value="" />
+                    <select class="form-select prod-select" name="produtosPedidos[IDX].produto.id" required>
+                        <option value="">Selecione...</option>
+                        <option th:each="p : ${produtos}" th:value="${p.id}" th:attr="data-preco=${p.preco}"
+                            th:text="${p.nome + ' (R$ ' + #numbers.formatDecimal(p.preco,1,'POINT',2,'COMMA') + ')'}">
+                        </option>
+                    </select>
+                </td>
+                <td><input type="number" min="1" step="1" class="form-control qtd-input"
+                        name="produtosPedidos[IDX].quantidade" value="1" required /></td>
+                <td><input type="number" min="0" step="0.01" class="form-control preco-input"
+                        name="produtosPedidos[IDX].valorProduto" value="0.00" required /></td>
+                <td><input type="number" min="0" step="0.01" class="form-control desc-input"
+                        name="produtosPedidos[IDX].valorDesconto" value="0.00" /></td>
+                <td class="text-end"><input class="form-control text-end total-input" value="0,00" readonly /></td>
+                <td><button type="button" class="btn btn-sm btn-outline-danger btnRemove">X</button></td>
+            </tr>
+        </template>
+
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // ===== Endereço (um-para-um) =====
+        const selCliente = document.getElementById('clienteId');
+        const btnUsarCli = document.getElementById('btnUsarEnderecoCliente');
+        const idEl = document.getElementById('enderecoId');
+        const cepEl = document.getElementById('enderecoCep');
+        const logEl = document.getElementById('enderecoLogradouro');
+        const numEl = document.getElementById('enderecoNumero');
+        const cmpEl = document.getElementById('enderecoComplemento');
+        const baiEl = document.getElementById('enderecoBairro');
+        const cidEl = document.getElementById('enderecoCidade');
+        const ufEl = document.getElementById('enderecoUf');
+
+        function limpaEnd(clearId = true) {
+            if (clearId) idEl.value = '';
+            [cepEl, logEl, numEl, cmpEl, baiEl, cidEl, ufEl].forEach(el => el && (el.value = ''));
+        }
+
+        async function carregarEnderecoDoCliente(clienteId) {
+            if (btnUsarCli) btnUsarCli.disabled = true;
+            if (!clienteId) return;
+            try {
+                const resp = await fetch(`/api/clientes/${clienteId}/endereco`, { headers: { 'Accept': 'application/json' } });
+                if (!resp.ok) { return; }
+                const e = await resp.json();
+                if (btnUsarCli) btnUsarCli.disabled = !e || !e.id;
+                btnUsarCli && (btnUsarCli.onclick = () => {
+                    if (!e) return;
+                    idEl.value = e.id ?? '';
+                    cepEl.value = e.cep ?? '';
+                    logEl.value = e.logradouro ?? '';
+                    numEl.value = e.numero ?? '';
+                    cmpEl.value = e.complemento ?? '';
+                    baiEl.value = e.bairro ?? '';
+                    cidEl.value = e.cidade ?? '';
+                    ufEl.value = e.uf ?? '';
+                });
+            } catch (_) { }
+        }
+
+        selCliente?.addEventListener('change', e => {
+            limpaEnd(true);
+            carregarEnderecoDoCliente(e.target.value);
+        });
+        document.getElementById('btnNovoEndereco')?.addEventListener('click', () => limpaEnd(true));
+        if (selCliente && selCliente.value) { carregarEnderecoDoCliente(selCliente.value); }
+
+        // ===== Itens / Totais =====
+        const tbody = document.getElementById('itensTableBody');
+        const tpl = document.getElementById('tplItemRow').content;
+        const btnAdd = document.getElementById('btnAddItem');
+
+        const visProd = document.getElementById('resValorProdutos');
+        const visDesc = document.getElementById('resValorDesconto');
+        const visFrete = document.getElementById('resValorFrete');
+        const visTotal = document.getElementById('resValorTotal');
+
+        function toNumber(v) { const n = parseFloat((v ?? '').toString().replace(',', '.')); return isNaN(n) ? 0 : n; }
+        function fmt2(n) { return (toNumber(n)).toFixed(2).replace('.', ','); }
+
+        function recalcRow(row) {
+            const qtd = toNumber(row.querySelector('.qtd-input')?.value);
+            const preco = toNumber(row.querySelector('.preco-input')?.value);
+            const desc = toNumber(row.querySelector('.desc-input')?.value);
+            let total = (qtd * preco) - desc;
+            if (total < 0) total = 0;
+            const totalEl = row.querySelector('.total-input');
+            totalEl && (totalEl.value = fmt2(total));
+            return { qtd, preco, desc, total };
+        }
+
+        function recalcAll() {
+            let somaProdutos = 0, somaDesc = 0, somaTot = 0;
+            tbody.querySelectorAll('tr').forEach(tr => {
+                const r = recalcRow(tr);
+                somaProdutos += (r.qtd * r.preco);
+                somaDesc += r.desc;
+                somaTot += r.total;
+            });
+            const frete = toNumber(visFrete?.value);
+            visProd && (visProd.value = fmt2(somaProdutos));
+            visDesc && (visDesc.value = fmt2(somaDesc));
+            visTotal && (visTotal.value = fmt2(somaTot + frete));
+        }
+
+        function wireRow(row) {
+            const sel = row.querySelector('.prod-select');
+            const qtd = row.querySelector('.qtd-input');
+            const pre = row.querySelector('.preco-input');
+            const des = row.querySelector('.desc-input');
+
+            sel?.addEventListener('change', () => {
+                const opt = sel.options[sel.selectedIndex];
+                const preco = opt ? toNumber(opt.dataset.preco) : 0;
+                if (pre) pre.value = preco.toFixed(2);
+                recalcAll();
+            });
+
+            [qtd, pre, des].forEach(el => {
+                el?.addEventListener('input', recalcAll);
+                el?.addEventListener('change', recalcAll);
+            });
+
+            if (qtd) { qtd.step = '1'; qtd.min = '1'; if (!qtd.value) qtd.value = '1'; }
+
+            // Se já veio produto selecionado do servidor, garantir preço preenchido
+            if (sel && sel.value) {
+                const opt = sel.options[sel.selectedIndex];
+                const preco = opt ? toNumber(opt.dataset.preco) : 0;
+                if (pre && (!pre.value || toNumber(pre.value) === 0)) {
+                    pre.value = preco.toFixed(2);
+                }
+            }
+        }
+
+        // linhas atuais
+        tbody.querySelectorAll('tr').forEach(wireRow);
+
+        // adicionar
+        function nextIndex() { return tbody.querySelectorAll('tr').length; }
+        btnAdd?.addEventListener('click', () => {
+            const idx = nextIndex();
+            const node = document.importNode(tpl, true);
+            node.querySelectorAll('[name]').forEach(el => el.name = el.name.replace('IDX', idx));
+            tbody.appendChild(node);
+            wireRow(tbody.lastElementChild);
+            recalcAll();
+        });
+
+        // remover
+        tbody.addEventListener('click', (e) => {
+            if (e.target.classList.contains('btnRemove')) {
+                e.target.closest('tr')?.remove();
+                recalcAll();
+            }
+        });
+
+        visFrete?.addEventListener('input', recalcAll);
+        recalcAll();
+
+        // ===== Submit: normaliza números e DESABILITA linhas vazias (não remove) =====
+        document.getElementById('formPedido')?.addEventListener('submit', () => {
+            // desabilita linhas sem produto para não bindar
+            tbody.querySelectorAll('tr').forEach(tr => {
+                const sel = tr.querySelector('.prod-select');
+                if (!sel || !sel.value) {
+                    tr.querySelectorAll('select,input').forEach(el => el.disabled = true);
+                }
+            });
+            // normaliza números , → .
+            document.querySelectorAll('.qtd-input,.preco-input,.desc-input,#resValorFrete').forEach(el => {
+                if (typeof el.value === 'string') { el.value = el.value.replace(',', '.'); }
+            });
+            // botão
+            const btn = document.getElementById('btnSalvar');
+            btn && (btn.disabled = true);
+        });
+    });
+</script>
+
+</html>

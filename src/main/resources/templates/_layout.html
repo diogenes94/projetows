@@ -39,6 +39,10 @@
                     th:href="@{/produtos-site}">
                     <span>Produtos</span>
                 </a>
+                <a class="nav-link" th:classappend="${active=='pedidos' ? ' active' : ''}"
+                    th:href="@{/pedidos-site}">
+                    <span>Pedidos</span>
+                </a>
             </nav>
             <hr class="my-4" />
             <div class="small" style="opacity: 0.7;">

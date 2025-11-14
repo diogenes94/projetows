@@ -33,7 +33,6 @@ public class Pedido {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @NotNull
     private LocalDateTime dataPedido;
     @NotNull
     @ManyToOne
@@ -55,45 +54,58 @@ public class Pedido {
     @NotNull
     private Boolean cancelado = false;
 
-    @NotNull
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProdutoPedido> produtosPedidos = new ArrayList<>();
 
     public void totalizarPedido() {
         this.valorProdutos = produtosPedidos.stream()
-                            .mapToDouble(prod -> prod.getValorProduto() == null ? 0. : prod.getValorProduto()).sum();
-        //totalizar valor desconto e valor produtos   
+                .mapToDouble(prod -> prod.getValorProduto() == null ? 0. : prod.getValorProduto()).sum();
+        // totalizar valor desconto e valor produtos
         this.valorDesconto = produtosPedidos.stream()
-                            .mapToDouble(prod -> prod.getValorDesconto() == null ? 0. : prod.getValorDesconto()).sum();
-        //valor total é o valor produtos menos o desconto.
-        //this.valorTotal = valorProdutos - valorDesconto;
+                .mapToDouble(prod -> prod.getValorDesconto() == null ? 0. : prod.getValorDesconto()).sum();
+        // valor total é o valor produtos menos o desconto.
+        // this.valorTotal = valorProdutos - valorDesconto;
         this.valorTotal = produtosPedidos.stream()
-                        .mapToDouble(prod -> prod.getValorTotal() == null ? 0. : prod.getValorTotal()).sum()
-                        + (this.valorFrete == null ? 0. : this.valorFrete);
-        
+                .mapToDouble(prod -> prod.getValorTotal() == null ? 0. : prod.getValorTotal()).sum()
+                + (this.valorFrete == null ? 0. : this.valorFrete);
+
     }
 
-    public void setItensFromForm(List<ProdutoPedido> itens) {
+    // Pedido.java
+    public void setItensFromForm(List<ProdutoPedido> itensForm) {
+        // 1) Define a origem sem risco de esvaziar a lista que estamos iterando
+        final List<ProdutoPedido> origem;
+        if (itensForm == null) {
+            origem = java.util.Collections.emptyList();
+        } else if (itensForm == this.produtosPedidos) {
+            // se veio a PRÓPRIA lista do pedido (bind do form), iteramos numa cópia
+            origem = new java.util.ArrayList<>(itensForm);
+        } else {
+            origem = itensForm;
+        }
+
+        final List<ProdutoPedido> nova = new java.util.ArrayList<>();
+        for (ProdutoPedido it : origem) {
+            if (it == null)
+                continue;
+            if (it.getProduto() == null || it.getProduto().getId() == null)
+                continue;
+
+            // Se quantidade for BigDecimal, troque por compareTo(BigDecimal.ZERO) > 0
+            if (it.getQuantidade() == null || it.getQuantidade() <= 0)
+                continue;
+
+            it.setPedido(this); // garante o back-reference
+            it.calcularPreco(); // garante valores unitários/total do item
+            nova.add(it);
+        }
+
+        // 3) Substitui o conteúdo da lista do pedido de uma vez, sem quebrar o bind
         this.produtosPedidos.clear();
-        if(itens == null) {
-            return;
-        }
-        for(ProdutoPedido it : itens) {
-            if(it == null) {
-                continue;
-            }
-            if(it.getProduto() == null || it.getProduto().getId() == null) {
-                continue;
-            }
-            if(it.getQuantidade() == null || it.getQuantidade() <= 0) {
-                continue;
-            }
-            it.calcularPreco();
-            it.setPedido(this);
-            this.produtosPedidos.add(it);
-        }
+        this.produtosPedidos.addAll(nova);
+
+        // 4) Recalcula os totais do pedido
         this.totalizarPedido();
     }
 
-    
 }

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="_layout :: head(${titulo})"></head>
+<div th:replace="_layout :: layout(${titulo}, ~{::content})">
+    <div th:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="h3 m-0">Pedidos</h1>
+            <a class="btn btn-primary" th:href="@{/pedidos-site/novo}">+ Novo Pedido</a>
+        </div>
+
+        <div class="table-responsive card card-soft">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Cliente</th>
+                        <th>Data</th>
+                        <th class="text-end">Produtos</th>
+                        <th class="text-end">Desconto</th>
+                        <th class="text-end">Frete</th>
+                        <th class="text-end">Total</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="p : ${pedidos}">
+                        <td th:text="${p.id}">1</td>
+                        <td th:text="${p.cliente != null ? p.cliente.nome : '-'}">cliente</td>
+                        <td th:text="${p.dataPedido != null ? #temporals.format(p.dataPedido, 'dd/MM/yyyy HH:mm') : ''}">--</td>
+                        <td th:text="${#numbers.formatDecimal(p.valorProdutos, 1, 'POINT', 2,'COMMA')}">0,00</td>
+                        <td th:text="${#numbers.formatDecimal(p.valorDesconto, 1, 'POINT', 2,'COMMA')}">0,00</td>
+                        <td th:text="${#numbers.formatDecimal(p.valorFrete, 1, 'POINT', 2,'COMMA')}">0,00</td>
+                        <td th:text="${#numbers.formatDecimal(p.valorTotal, 1, 'POINT', 2,'COMMA')}">0,00</td>
+                        <td>
+                            <a class="btn btn-sm btn-outline-primary me-1" th:href="@{|/pedidos-site/${p.id}/editar|}">Editar</a>
+                            <form th:action="@{|/pedidos-site/${p.id}/excluir|}" method="post" class="d-inline"
+                                onsubmit="return confirm('Excluir este pedido?')">
+                                <button class="btn btn-sm btn-outline-danger" type="submit">Excluir</button>
+                            </form>
+                        </td>                        
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(pedidos)}" >
+                        <td colspan="8" class="text-center text-muted py-4">Nenhum pedido cadastrado.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</html>
